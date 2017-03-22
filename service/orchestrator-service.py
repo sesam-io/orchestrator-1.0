@@ -359,10 +359,16 @@ def assert_non_overlapping_managed_systems(slave_nodes):
 
 
 def copy_environment_variables(master_node, slave_nodes):
-    env_vars = master_node["api_connection"].get_env_vars()
+    try:
+        env_vars = master_node["api_connection"].get_env_vars()
 
-    for slave_node in slave_nodes:
-        slave_node["api_connection"].post_env_vars(env_vars)
+        if env_vars:
+            for slave_node in slave_nodes:
+                logger.info("Copying env vars from master to slave node %s" % slave_node["_id"])
+                slave_node["api_connection"].post_env_vars(env_vars)
+    except BaseException as e:
+        logger.exception("Copying env vars from master to slave node failed. Make sure the JWT tokens used "
+                         "are issued to 'group:Admin'!")
 
 if __name__ == '__main__':
     format_string = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'

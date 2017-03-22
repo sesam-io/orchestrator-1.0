@@ -49,7 +49,9 @@ System configuration in Sesam:
 The microservice operates under the following assumptions/restrictions:
 
 * The master and slave(s) must share the same secrets (if any) - the system config is shared between the nodes
-* The environment variables will be synced from master to slave (it will overwrite any in the slaves with the same name)
+* The environment variables will be synced from master to slave (it will overwrite any in the slaves with the same name).
+  Note that to be able to syncronise environment variables, the JWT tokens must be issued to the "group:Admin" group as it
+  needs access to APIs restricted to this group
 * Make sure no slaves state the same managed system id - the service will refuse to run in this scenario
 * If you change the config and move a system managed by a slave node to another slave, the system and pipe(s)
   in the original slave will be copied to the new slave and the originals deleted. The synchronising pipe in the master
