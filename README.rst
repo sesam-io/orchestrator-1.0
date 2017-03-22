@@ -49,11 +49,12 @@ System configuration in Sesam:
 The microservice operates under the following assumptions/restrictions:
 
 * The master and slave(s) must share the same secrets (if any) - the system config is shared between the nodes
+* The environment variables will be synced from master to slave (it will overwrite any in the slaves with the same name)
 * Make sure no slaves state the same managed system id - the service will refuse to run in this scenario
 * If you change the config and move a system managed by a slave node to another slave, the system and pipe(s)
   in the original slave will be copied to the new slave and the originals deleted. The synchronising pipe in the master
-  will be overwritten and reset. Additionally, the dataset(s) in the original slave node will be deleted.
+  will also be overwritten and reset. Additionally, the dataset(s) in the original slave node will be deleted.
 * Any master pipe with a system matching any slave node's ``managed_system`` property will be moved to the corresponding
   slave at any time after it is saved or uploaded to the master. It will then be replaced by a synchronising pipe in the master
-  using the same ``_id``.
+  using the same ``_id`` - however, the original configuration is kept in the "metadata" property of the synchronising pipe.
 * Do not hand edit any pipes created by the orchestrator as they can and will be overwritten by the orchestrator service at any time

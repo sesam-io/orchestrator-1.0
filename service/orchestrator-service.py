@@ -239,14 +239,6 @@ def is_orchestrated(component):
 
 def orchestrate_pipes(master_node, slave_nodes):
 
-    if not master_node["endpoint"].endswith("/"):
-        master_node["endpoint"] += "/"
-
-    logger.info("Master API endpoint is: %s" % master_node["endpoint"] + "api")
-
-    master_node["api_connection"] = sesamclient.Connection(sesamapi_base_url=master_node["endpoint"] + "api",
-                                                           jwt_auth_token=master_node["jwt_token"])
-
     master_systems = get_node_pipes_and_systems(master_node)
     master_pipes = {}
     for system_id in master_systems:
@@ -255,14 +247,6 @@ def orchestrate_pipes(master_node, slave_nodes):
                 master_pipes[pipe.id] = system_id
 
     for slave_node in slave_nodes:
-        if not slave_node["endpoint"].endswith("/"):
-            slave_node["endpoint"] += "/"
-
-        if "api_connection" not in slave_node:
-            logger.info("Slave '%s' API endpoint is: %s" % (slave_node["_id"], slave_node["endpoint"] + "api"))
-            slave_node["api_connection"] = sesamclient.Connection(sesamapi_base_url=slave_node["endpoint"] + "api",
-                                                                  jwt_auth_token=slave_node["jwt_token"])
-
         logger.info("Processing slave '%s'.." % slave_node["_id"])
 
         # All existing systems and pipes in the slave
@@ -374,6 +358,12 @@ def assert_non_overlapping_managed_systems(slave_nodes):
                 sys.exit(1)
 
 
+def copy_environment_variables(master_node, slave_nodes):
+    env_vars = master_node["api_connection"].get_env_vars()
+
+    for slave_node in slave_nodes:
+        slave_node["api_connection"].post_env_vars(env_vars)
+
 if __name__ == '__main__':
     format_string = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     logger = logging.getLogger('orchestrator-service')
@@ -406,9 +396,28 @@ if __name__ == '__main__':
 
     slave_nodes = json.loads(os.environ["SLAVE_NODES"])
 
+    if not master_node["endpoint"].endswith("/"):
+        master_node["endpoint"] += "/"
+
+    logger.info("Master API endpoint is: %s" % master_node["endpoint"] + "api")
+
+    master_node["api_connection"] = sesamclient.Connection(sesamapi_base_url=master_node["endpoint"] + "api",
+                                                           jwt_auth_token=master_node["jwt_token"])
+
+    for slave_node in slave_nodes:
+        if not slave_node["endpoint"].endswith("/"):
+            slave_node["endpoint"] += "/"
+
+        if "api_connection" not in slave_node:
+            logger.info("Slave '%s' API endpoint is: %s" % (slave_node["_id"], slave_node["endpoint"] + "api"))
+            slave_node["api_connection"] = sesamclient.Connection(sesamapi_base_url=slave_node["endpoint"] + "api",
+                                                                  jwt_auth_token=slave_node["jwt_token"])
+
     assert_non_overlapping_managed_systems(slave_nodes)
 
     while True:
+        copy_environment_variables(master_node, slave_nodes)
+
         orchestrate_pipes(master_node, slave_nodes)
 
         # Sleep for a while then go again
