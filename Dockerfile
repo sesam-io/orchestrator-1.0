@@ -60,4 +60,4 @@ WORKDIR /service
 RUN pip install -r requirements.txt
 EXPOSE 5000/tcp
 ENTRYPOINT ["python3"]
-CMD ["orchestratort-service.py"]
+CMD ["orchestrator-service.py"]
