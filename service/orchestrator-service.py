@@ -183,7 +183,7 @@ def move_pipes(target_node, pipes):
                 "add_namespaces": False,
                 "source": {
                     "type": "json",
-                    "system": pipe.config["original"]["source"]["system"],
+                    "system": pipe.config["effective"]["source"]["system"],
                     "url":  pipe.id,
                     "supports_since": True,
                     "is_chronological": True
