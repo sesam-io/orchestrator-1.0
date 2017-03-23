@@ -413,7 +413,8 @@ if __name__ == '__main__':
     logger.info("Master API endpoint is: %s" % master_node["endpoint"] + "api")
 
     master_node["api_connection"] = sesamclient.Connection(sesamapi_base_url=master_node["endpoint"] + "api",
-                                                           jwt_auth_token=master_node["jwt_token"])
+                                                           jwt_auth_token=master_node["jwt_token"],
+                                                           timeout=60*10)
 
     for slave_node in slave_nodes:
         if not slave_node["endpoint"].endswith("/"):
@@ -422,16 +423,20 @@ if __name__ == '__main__':
         if "api_connection" not in slave_node:
             logger.info("Slave '%s' API endpoint is: %s" % (slave_node["_id"], slave_node["endpoint"] + "api"))
             slave_node["api_connection"] = sesamclient.Connection(sesamapi_base_url=slave_node["endpoint"] + "api",
-                                                                  jwt_auth_token=slave_node["jwt_token"])
+                                                                  jwt_auth_token=slave_node["jwt_token"],
+                                                                  timeout=60*10)
 
     assert_non_overlapping_managed_systems(slave_nodes)
 
     while True:
-        copy_environment_variables(master_node, slave_nodes)
+        try:
+            copy_environment_variables(master_node, slave_nodes)
 
-        orchestrate_pipes(master_node, slave_nodes)
+            orchestrate_pipes(master_node, slave_nodes)
 
-        # Sleep for a while then go again
-        logger.info("Master updated to sync from slaves, sleeping for %s seconds..." % update_interval)
+            # Sleep for a while then go again
+            logger.info("Master updated to sync from slaves, sleeping for %s seconds..." % update_interval)
+        except BaseException as e:
+            logger.exception("Error while orchestrating!")
 
         sleep(update_interval)
