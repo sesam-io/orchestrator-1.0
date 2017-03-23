@@ -306,13 +306,18 @@ def orchestrate_pipes(master_node, slave_nodes):
                     # New or updated system
                     slave_config = copy(master_sys.config["original"])
 
+                    if slave_node.get("jwt_secret_key"):
+                        jwt_token = "$SECRET(%s)" % slave_node["jwt_secret_key"]
+                    else:
+                        jwt_token = slave_node["jwt_token"]
+
                     system_config_master = {
                         "_id": managed_system_id,
                         "name": master_sys.config.get("name", managed_system_id),
                         "type": "system:url",
                         "url_pattern": slave_node["endpoint"] + "api/datasets/%s/entities",
                         "verify_ssl": True,
-                        "jwt_token": slave_node["jwt_token"],
+                        "jwt_token": jwt_token,
                         "authentication": "jwt",
                         "connect_timeout": 60,
                         "read_timeout": 7200,

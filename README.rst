@@ -26,6 +26,7 @@ System configuration in Sesam:
                     "_id" : "m1",
                     "endpoint" : "https://m1.sesam.cloud",
                     "jwt_token" : "fklrl464nimsnfskfklrl464nimskfklrl464nimsnfskfkfklrl464nimsnfskf4nimsnfskfklrl464n",
+                    "jwt_secret_key": "foo"
                 },
                 "SLAVE_NODES": [
                     {
@@ -33,12 +34,14 @@ System configuration in Sesam:
                         "endpoint" : "https://s1.sesam.cloud",
                         "managed_systems" : ["my-oracle-system"],
                         "jwt_token" : "msnfskfklrl464nimsnfskfklrl464nimsnfskfklrl464nimsnfskfklrl44nimsnfskfklrl464ni",
+                        "jwt_secret_key": "bar",
                         "sync_interval": 300
                     },
                     {
                         "_id" : "s2",
                         "endpoint" : "https://s2.sesam.cloud",
                         "managed_systems" : ["my-url-system"],
+                        "jwt_secret_key": "baz",
                         "jwt_token" : "msnfskfklrl464nimsnfskfklrl464nimsnfskfklrl464nimsnfskfklrl464nimsnfskfklrl464n"
                     }
                 ]
