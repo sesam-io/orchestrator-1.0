@@ -66,4 +66,4 @@ The microservice operates under the following assumptions/restrictions:
 * Do not hand edit any pipes created by the orchestrator as they can and will be overwritten by the orchestrator service at any time
 * The pipes that pull data from the slaves to the node will run every ``sync_interval`` seconds (default 300), staggered by
   a random amount controlled by ``sync_interval_stagger_range`` (default the same as ``sync_interval``). The staggering
-  is to avoid s "stampeding herd" of simultaneously running threads in the master reading data from a slave node.
+  is to avoid a "stampeding herd" of simultaneously running threads in the master reading data from a slave node.
