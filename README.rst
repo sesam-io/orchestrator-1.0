@@ -35,7 +35,8 @@ System configuration in Sesam:
                         "managed_systems" : ["my-oracle-system"],
                         "jwt_token" : "msnfskfklrl464nimsnfskfklrl464nimsnfskfklrl464nimsnfskfklrl44nimsnfskfklrl464ni",
                         "jwt_secret_key": "bar",
-                        "sync_interval": 300
+                        "sync_interval": 300,
+                        "sync_interval_stagger_range": 300
                     },
                     {
                         "_id" : "s2",
@@ -63,3 +64,6 @@ The microservice operates under the following assumptions/restrictions:
   slave at any time after it is saved or uploaded to the master. It will then be replaced by a synchronising pipe in the master
   using the same ``_id`` - however, the original configuration is kept in the "metadata" property of the synchronising pipe.
 * Do not hand edit any pipes created by the orchestrator as they can and will be overwritten by the orchestrator service at any time
+* The pipes that pull data from the slaves to the node will run every ``sync_interval`` seconds (default 300), staggered by
+  a random amount controlled by ``sync_interval_stagger_range`` (default the same as ``sync_interval``). The staggering
+  is to avoid s "stampeding herd" of simultaneously running threads in the master reading data from a slave node.
