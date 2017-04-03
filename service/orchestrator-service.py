@@ -266,12 +266,13 @@ def orchestrate_pipes(master_node, slave_nodes):
 
         # Delete any systems not managed by the slave, or which doesn't exist in the master
         for slave_system_id in slave_systems:
-            if slave_system_id not in slave_managed_systems or slave_system_id not in master_systems:
+            if slave_system_id not in slave_managed_systems or slave_system_id not in master_systems and \
+                    not slave_system_id.startswith("sesam-dev-test"):
                 delete_node_system(slave_node, slave_system_id, slave_systems[slave_system_id])
 
             # Check if the slave pipes exists in master
             for pipe in slave_systems[slave_system_id]:
-                if pipe.id not in master_pipes:
+                if pipe.id not in master_pipes and not pipe.id.startswith('sesam-dev-test'):
                     # Someone deleted the pipe in master, so remove it (and any dataset) from the slave
                     delete_node_pipe(slave_node, pipe.id)
 
@@ -378,8 +379,11 @@ def copy_environment_variables(master_node, slave_nodes):
 
         if env_vars:
             for slave_node in slave_nodes:
-                logger.info("Copying env vars from master to slave node %s" % slave_node["_id"])
-                slave_node["api_connection"].post_env_vars(env_vars)
+                slave_env_vars = slave_node["api_connection"].get_env_vars()
+                if slave_env_vars != env_vars:
+                    logger.info("Master and slave env vars are different - copying env vars from master "
+                                "to slave node %s" % slave_node["_id"])
+                    slave_node["api_connection"].post_env_vars(env_vars)
     except BaseException as e:
         logger.exception("Copying env vars from master to slave node failed. Make sure the JWT tokens used "
                          "are issued to 'group:Admin'!")
@@ -399,8 +403,9 @@ def assert_same_secret_keys(master_node, slave_nodes):
             can_run = False
 
     if not can_run:
-        logger.error("Master and slave secrets mismatch, exiting")
-        sys.exit(1)
+        logger.warning("Master and slave secrets mismatch!")
+        #logger.error("Master and slave secrets mismatch, exiting")
+        #sys.exit(1)
 
 
 if __name__ == '__main__':
@@ -457,7 +462,7 @@ if __name__ == '__main__':
 
     while True:
         try:
-            logger.info("Syncing master and slaves..." % update_interval)
+            logger.info("Syncing master and slaves...")
 
             assert_same_secret_keys(master_node, slave_nodes)
 
