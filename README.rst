@@ -26,7 +26,8 @@ System configuration in Sesam:
                     "_id" : "m1",
                     "endpoint" : "https://m1.sesam.cloud",
                     "jwt_token" : "fklrl464nimsnfskfklrl464nimskfklrl464nimsnfskfkfklrl464nimsnfskf4nimsnfskfklrl464n",
-                    "jwt_secret_key": "foo"
+                    "jwt_secret_key": "foo",
+                    "use_binary_source": false
                 },
                 "SLAVE_NODES": [
                     {

@@ -169,7 +169,7 @@ def stagger_time(scheduled_time, stagger_range=None):
     return scheduled_time + randint(0, stagger_range - 1)
 
 
-def move_pipes(target_node, pipes):
+def move_pipes(target_node, pipes, pipe_type="json"):
     # Move any non-orchestrated pipes in list to the slave
     # Stop master pipes before we do anything
 
@@ -191,7 +191,7 @@ def move_pipes(target_node, pipes):
                 "type": "pipe",
                 "add_namespaces": False,
                 "source": {
-                    "type": "json",
+                    "type": pipe_type,
                     "system": pipe.config["effective"]["source"]["system"],
                     "url":  pipe.id,
                     "supports_since": True,
@@ -248,6 +248,10 @@ def is_orchestrated(component):
 
 
 def orchestrate_pipes(master_node, slave_nodes):
+    if master_node.get("use_binary_source", False):
+        pipe_type = "binary"
+    else:
+        pipe_type = "json"
 
     master_systems = get_node_pipes_and_systems(master_node)
     master_pipes = {}
@@ -326,7 +330,7 @@ def orchestrate_pipes(master_node, slave_nodes):
                         "_id": managed_system_id,
                         "name": master_sys.config.get("name", managed_system_id),
                         "type": "system:url",
-                        "url_pattern": slave_node["endpoint"] + "api/datasets/%s/entities",
+                        "url_pattern": slave_node["endpoint"] + "api/datasets/%s/entities?history=false",
                         "verify_ssl": True,
                         "jwt_token": jwt_token,
                         "authentication": "jwt",
@@ -356,7 +360,7 @@ def orchestrate_pipes(master_node, slave_nodes):
 
                 if pipes_to_move:
                     logger.info("Moving %d pipes from master to slave '%s'" % (len(pipes_to_move), slave_node["_id"]))
-                    move_pipes(slave_node, pipes_to_move)
+                    move_pipes(slave_node, pipes_to_move, pipe_type=pipe_type)
             else:
                 logger.warning("Slave '%s' asked to manage non-existant "
                                "system '%s'" % (slave_node["_id"], managed_system_id))
