@@ -1,2 +1,2 @@
-sesamclient==0.2.46
+sesamclient==0.2.49
 requests==2.10.0

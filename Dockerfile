@@ -2,6 +2,12 @@ FROM ubuntu:16.04
 MAINTAINER Graham Moore "graham.moore@sesam.io"
 
 ENV DEBIAN_FRONTEND noninteractive
+
+RUN \
+apt-get update && \
+apt-get install -y \
+  locales
+
 RUN localedef -i en_US -f UTF-8 en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
 ENV LANG en_US.UTF-8

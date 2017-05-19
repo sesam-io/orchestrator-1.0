@@ -8,6 +8,7 @@ from time import sleep
 import sesamclient
 from copy import copy
 from random import randint
+from pprint import pformat
 
 logger = None
 overwrite_systems = False
@@ -222,8 +223,8 @@ def move_pipes(target_node, pipes):
             if "enable" in pump.supported_operations:
                 pump.enable()
 
-            if "update-last-seen" in pump.supported_operations:
-                pump.unset_last_seen()
+            #if "update-last-seen" in pump.supported_operations:
+            #    pump.unset_last_seen()
 
 
 def stop_and_disable_pipes(pipes):
@@ -381,9 +382,11 @@ def copy_environment_variables(master_node, slave_nodes):
             for slave_node in slave_nodes:
                 slave_env_vars = slave_node["api_connection"].get_env_vars()
                 if slave_env_vars != env_vars:
+                    logger.debug("Master env vars:\n%s" % pformat(env_vars))
+                    logger.debug("Slave env vars:\n%s" % pformat(slave_env_vars))
                     logger.info("Master and slave env vars are different - copying env vars from master "
                                 "to slave node %s" % slave_node["_id"])
-                    slave_node["api_connection"].post_env_vars(env_vars)
+                    slave_node["api_connection"].put_env_vars(env_vars)
     except BaseException as e:
         logger.exception("Copying env vars from master to slave node failed. Make sure the JWT tokens used "
                          "are issued to 'group:Admin'!")
