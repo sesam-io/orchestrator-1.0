@@ -471,6 +471,19 @@ if __name__ == '__main__':
         try:
             logger.info("Syncing master and slaves...")
 
+            try:
+                logger.info("Making sure the node is up...")
+                systems = master_node["api_connection"] .get_systems()
+                pipes = master_node["api_connection"] .get_pipes()
+            except BaseException as e:
+                raise AssertionError("The node appear to be down or in read-only mode :(")
+
+            if len(systems) == 0:
+                raise AssertionError("Master returned 0 systems - surely this is an error?")
+
+            if len(pipes) == 0:
+                raise AssertionError("Master returned 0 pipes - surely this is an error?")
+
             assert_same_secret_keys(master_node, slave_nodes)
 
             copy_environment_variables(master_node, slave_nodes)
