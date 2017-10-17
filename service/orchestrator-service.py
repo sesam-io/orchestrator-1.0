@@ -476,7 +476,7 @@ if __name__ == '__main__':
                 systems = master_node["api_connection"] .get_systems()
                 pipes = master_node["api_connection"] .get_pipes()
             except BaseException as e:
-                raise AssertionError("The node appear to be down or in read-only mode :(")
+                raise AssertionError("Wasn't able to talk to the master node. Aborting this run.")
 
             if len(systems) == 0:
                 raise AssertionError("Master returned 0 systems - surely this is an error?")
