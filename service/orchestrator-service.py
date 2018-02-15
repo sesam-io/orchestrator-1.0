@@ -195,7 +195,8 @@ def move_pipes(target_node, pipes, pipe_type="json"):
                     "system": pipe.config["effective"]["source"]["system"],
                     "url":  pipe.id,
                     "supports_since": True,
-                    "is_chronological": True
+                    "is_chronological": True,
+                    "page_size": 50000
                 },
                 "sink": {
                     "type": "dataset",
